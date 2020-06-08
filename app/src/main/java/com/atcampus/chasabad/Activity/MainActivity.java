@@ -1,8 +1,10 @@
-package com.atcampus.chasabad;
+package com.atcampus.chasabad.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.atcampus.chasabad.R;
 
 public class MainActivity extends AppCompatActivity {
 
