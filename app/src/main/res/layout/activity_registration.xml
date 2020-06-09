@@ -15,6 +15,57 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="192dp"
+                android:layout_marginTop="215dp"
+                android:layout_marginEnd="219dp"
+                android:checkedButton="@id/radioButton1"
+                android:padding="10dp"
+                android:background="@drawable/radio_group_background"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioButton1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SignIn"
+                    android:padding="10dp"
+                    android:button="@null"
+                    android:layout_gravity="center"
+                    android:background="@drawable/radius_truck"
+                    android:textColor="@drawable/radio_button_textcolor"
+                    tools:layout_editor_absoluteX="125dp"
+                    tools:layout_editor_absoluteY="272dp" />
+
+                <RadioButton
+                    android:background="@drawable/radius_truck"
+                    android:id="@+id/radioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SignUp"
+                    android:padding="10dp"
+                    android:button="@null"
+                    android:layout_gravity="center"
+                    android:textColor="@drawable/radio_button_textcolor"
+                    tools:layout_editor_absoluteX="125dp"
+                    tools:layout_editor_absoluteY="272dp" />
+
+            </RadioGroup>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
