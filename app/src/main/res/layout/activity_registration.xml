@@ -18,22 +18,23 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <RadioGroup
+        android:id="@+id/radioGroup"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="164dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/radio_group_background"
-        android:checkedButton="@id/radioButton1"
+        android:checkedButton="@id/signInBtn"
         android:orientation="horizontal"
         android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
-            android:id="@+id/radioButton1"
+            android:id="@+id/signInBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -43,21 +44,25 @@
             android:gravity="center"
             android:padding="10dp"
             android:text="SignIn"
+            android:onClick="radioButtonChecked"
+            android:checked="true"
             android:textColor="@drawable/radio_button_textcolor"
             tools:layout_editor_absoluteX="125dp"
             tools:layout_editor_absoluteY="272dp" />
 
         <RadioButton
-            android:id="@+id/radioButton"
+            android:id="@+id/signUpBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
+            android:checked="false"
             android:background="@drawable/radius_truck"
             android:button="@null"
             android:gravity="center"
             android:padding="10dp"
             android:text="SignUp"
+            android:onClick="radioButtonChecked"
             android:textColor="@drawable/radio_button_textcolor"
             tools:layout_editor_absoluteX="125dp"
             tools:layout_editor_absoluteY="272dp" />
@@ -78,6 +83,21 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/view2" />
+
+    <FrameLayout
+        android:id="@+id/registerFrame"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="64dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroup">
+
+    </FrameLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
