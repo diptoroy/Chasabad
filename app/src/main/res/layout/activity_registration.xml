@@ -25,7 +25,7 @@
         android:layout_marginTop="164dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/radio_group_background"
-        android:checkedButton="@id/signInBtn"
+        android:checkedButton="@id/signInRadioBtn"
         android:orientation="horizontal"
         android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +34,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
-            android:id="@+id/signInBtn"
+            android:id="@+id/signInRadioBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -48,10 +48,11 @@
             android:checked="true"
             android:textColor="@drawable/radio_button_textcolor"
             tools:layout_editor_absoluteX="125dp"
-            tools:layout_editor_absoluteY="272dp" />
+            tools:layout_editor_absoluteY="272dp"
+            tools:ignore="DuplicateIds" />
 
         <RadioButton
-            android:id="@+id/signUpBtn"
+            android:id="@+id/signUpRadioBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -98,6 +99,20 @@
         app:layout_constraintTop_toBottomOf="@+id/radioGroup">
 
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/skipBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Skip"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toTopOf="@+id/title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.894"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
