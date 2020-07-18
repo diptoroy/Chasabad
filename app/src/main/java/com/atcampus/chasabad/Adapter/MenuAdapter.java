@@ -7,50 +7,59 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.atcampus.chasabad.Model.MenuModel;
 import com.atcampus.chasabad.R;
 
 import java.util.List;
 
-public class MenuAdapter extends BaseAdapter {
+import javax.xml.namespace.QName;
 
-    List<MenuModel> menuModels;
+public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
+
+    private List<MenuModel> menuModels;
 
     public MenuAdapter(List<MenuModel> menuModels) {
         this.menuModels = menuModels;
     }
 
+    @NonNull
     @Override
-    public int getCount() {
+    public MenuAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.menu_gridview_row,parent,false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull MenuAdapter.ViewHolder holder, int position) {
+
+        int img = menuModels.get(position).getMenuImage();
+        String title = menuModels.get(position).getMenuTitle();
+
+        holder.setData(img,title);
+    }
+
+    @Override
+    public int getItemCount() {
         return menuModels.size();
     }
 
-    @Override
-    public Object getItem(int position) {
-        return null;
-    }
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        private ImageView img;
+        private TextView title;
 
-    @Override
-    public long getItemId(int position) {
-        return 0;
-    }
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        final View view;
-        if (convertView == null) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.menu_gridview_row, null);
-
-            ImageView img = view.findViewById(R.id.menu_image);
-            TextView title = view.findViewById(R.id.menu_name);
-
-            img.setImageResource(menuModels.get(position).getMenuImage());
-            title.setText(menuModels.get(position).getMenuTitle());
-
-        }else {
-            view = convertView;
+            img = itemView.findViewById(R.id.menu_image);
+            title = itemView.findViewById(R.id.menu_name);
         }
-        return view;
+
+        public void setData(int mImage,String mName){
+            img.setImageResource(mImage);
+            title.setText(mName);
+        }
     }
 }

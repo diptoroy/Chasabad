@@ -15,27 +15,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <GridView
-        android:id="@+id/menu_gridView"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/menu_recyclerView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:horizontalSpacing="1dp"
-        android:numColumns="2"
-        android:verticalSpacing="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include" >
+        app:layout_constraintTop_toBottomOf="@+id/include" />
 
-    </GridView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tips_recyclerView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/menu_gridView" />
+        app:layout_constraintTop_toBottomOf="@+id/menu_recyclerView" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

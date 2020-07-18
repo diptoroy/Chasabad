@@ -1,6 +1,7 @@
 package com.atcampus.chasabad.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,15 +20,16 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private GridView menuGridView;
-    private RecyclerView tipsRecyclerView;
+
+    private RecyclerView menuRecyclerView,tipsRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        menuGridView = findViewById(R.id.menu_gridView);
+        menuRecyclerView = findViewById(R.id.menu_recyclerView);
+        menuRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
         List<MenuModel> menuModelList = new ArrayList<>();
         menuModelList.add(new MenuModel(R.drawable.leaf,"Leaf"));
         menuModelList.add(new MenuModel(R.drawable.agriculture,"Agriculture"));
@@ -35,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
         menuModelList.add(new MenuModel(R.drawable.price,"Price"));
         menuModelList.add(new MenuModel(R.drawable.news,"News"));
         menuModelList.add(new MenuModel(R.drawable.shop,"Shop"));
-        menuGridView.setAdapter(new MenuAdapter(menuModelList));
+        MenuAdapter menuAdapter = new MenuAdapter(menuModelList);
+        menuRecyclerView.setAdapter(menuAdapter);
+        menuAdapter.notifyDataSetChanged();
 
         tipsRecyclerView = findViewById(R.id.tips_recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
