@@ -32,7 +32,6 @@
             android:name=".Activity.SplashActivity"
             android:theme="@style/NoActionBarTheme">
         </activity>
-        <service android:name=".AppService.FetchIntentAddressService"/>
     </application>
 
 </manifest>
