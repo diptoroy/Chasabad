@@ -65,12 +65,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         menuRecyclerView = findViewById(R.id.menu_recyclerView);
         menuRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         List<MenuModel> menuModelList = new ArrayList<>();
-        menuModelList.add(new MenuModel(R.drawable.leaf, "Leaf"));
-        menuModelList.add(new MenuModel(R.drawable.agriculture, "Agriculture"));
-        menuModelList.add(new MenuModel(R.drawable.medicine, "Medicine"));
-        menuModelList.add(new MenuModel(R.drawable.price, "Price"));
-        menuModelList.add(new MenuModel(R.drawable.news, "News"));
-        menuModelList.add(new MenuModel(R.drawable.shop, "Shop"));
+        menuModelList.add(new MenuModel(R.drawable.leaf, "ফসল পরিচিতি"));
+        menuModelList.add(new MenuModel(R.drawable.agriculture, "চাষাবাদ পদ্ধতি ও সময়"));
+        menuModelList.add(new MenuModel(R.drawable.medicine, "সার ও কীটনাশক"));
+        menuModelList.add(new MenuModel(R.drawable.price, "আজকের বাজার"));
+        menuModelList.add(new MenuModel(R.drawable.news, "কৃষিতথ্য"));
+        menuModelList.add(new MenuModel(R.drawable.shop, "শপ"));
         MenuAdapter menuAdapter = new MenuAdapter(menuModelList);
         menuRecyclerView.setAdapter(menuAdapter);
         menuAdapter.notifyDataSetChanged();
