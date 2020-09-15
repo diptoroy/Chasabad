@@ -1,5 +1,6 @@
 package com.atcampus.chasabad.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -28,18 +29,28 @@ import com.atcampus.chasabad.Adapter.MenuAdapter;
 import com.atcampus.chasabad.Adapter.TipsAdapter;
 import com.atcampus.chasabad.Model.MenuModel;
 import com.atcampus.chasabad.Model.TipsModel;
+import com.atcampus.chasabad.Model.WeatherDataModel;
 import com.atcampus.chasabad.R;
+import com.atcampus.chasabad.Service.ApiClient;
+import com.atcampus.chasabad.Service.WeatherService;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView menuRecyclerView, tipsRecyclerView;
     private TextView locationTextView;
+    private TextView tempText;
 
     //user request
     private int REQUEST_LOCATION = 99;
@@ -49,6 +60,13 @@ public class MainActivity extends AppCompatActivity {
     private UserLocationListener mylistener;
     private Criteria criteria;
 
+    //Weather
+    public static String BaseUrl = "http://api.openweathermap.org/";
+    public static String AppId = "1af5922fab1bb3d30821d6bb74d6bf4e";
+    public static String lat;
+    public static String lon;
+    private WeatherService weatherService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         locationTextView = findViewById(R.id.locationText);
+        tempText = findViewById(R.id.tempText);
 
         // user defines the criteria
         criteria = new Criteria();
@@ -104,8 +123,22 @@ public class MainActivity extends AppCompatActivity {
         TipsAdapter tipsAdapter = new TipsAdapter(tipsModelList);
         tipsRecyclerView.setAdapter(tipsAdapter);
         tipsAdapter.notifyDataSetChanged();
-        
 
+
+        weatherService = ApiClient.getRetrofit().create(WeatherService.class);
+        Call<WeatherDataModel> call = weatherService.getCurrentWeatherData(lat,lon,AppId);
+        call.enqueue(new Callback<WeatherDataModel>() {
+            @Override
+            public void onResponse(Call<WeatherDataModel> call, Response<WeatherDataModel> response) {
+                WeatherDataModel weatherDataModel = response.body();
+                
+            }
+
+            @Override
+            public void onFailure(Call<WeatherDataModel> call, Throwable t) {
+
+            }
+        });
     }
 
     private void locationData(Location location) {
@@ -140,13 +173,16 @@ public class MainActivity extends AppCompatActivity {
         // location updates: at least 1 meter and 200millsecs change
         locationManager.requestLocationUpdates(provider, 200, 1, mylistener);
         if(location!=null) {
-            Double lat = location.getLatitude();
-            Double lon = location.getLongitude();
+            Double latitude = location.getLatitude();
+            Double longitude = location.getLongitude();
+
+            lat = String.valueOf(latitude);
+            lon = String.valueOf(longitude);
 
             Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
             List<Address> addresses = null;
             try {
-                addresses = geocoder.getFromLocation(lat, lon, 1);
+                addresses = geocoder.getFromLocation(latitude, longitude, 1);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -155,9 +191,9 @@ public class MainActivity extends AppCompatActivity {
             String countryName = addresses.get(0).getCountryName();
             String postalcode = addresses.get(0).getPostalCode();
             String area = addresses.get(0).getAdminArea();
-            String latlon = String.valueOf(lat) +","+ String.valueOf(lon);
+            String latlon = lat +","+ lon;
             //set text of xml file
-            locationTextView.setText(countryName);
+            locationTextView.setText(latlon);
         }
         else {
             Toast.makeText(MainActivity.this, "Please open your location", Toast.LENGTH_SHORT).show();
@@ -192,6 +228,8 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
 //
 //    @Override
