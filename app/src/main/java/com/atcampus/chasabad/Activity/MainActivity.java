@@ -1,6 +1,5 @@
 package com.atcampus.chasabad.Activity;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -10,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +22,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.provider.Settings;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,28 +30,32 @@ import com.atcampus.chasabad.Adapter.MenuAdapter;
 import com.atcampus.chasabad.Adapter.TipsAdapter;
 import com.atcampus.chasabad.Model.MenuModel;
 import com.atcampus.chasabad.Model.TipsModel;
-import com.atcampus.chasabad.Model.WeatherDataModel;
+import com.atcampus.chasabad.Model.WeatherData.WeatherDataModel;
 import com.atcampus.chasabad.R;
 import com.atcampus.chasabad.Service.ApiClient;
 import com.atcampus.chasabad.Service.WeatherService;
+import com.bumptech.glide.Glide;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView menuRecyclerView, tipsRecyclerView;
     private TextView locationTextView;
-    private TextView tempText;
+    private TextView tempText,humText,windText,rainText;
+    private ImageView wIcon;
 
     //user request
     private int REQUEST_LOCATION = 99;
@@ -62,9 +67,10 @@ public class MainActivity extends AppCompatActivity {
 
     //Weather
     public static String BaseUrl = "http://api.openweathermap.org/";
-    public static String AppId = "1af5922fab1bb3d30821d6bb74d6bf4e";
+    public static String AppId = "3e27923a09225792589eb4781bda21eb";
     public static String lat;
     public static String lon;
+
     private WeatherService weatherService;
 
     @Override
@@ -76,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
 
         locationTextView = findViewById(R.id.locationText);
         tempText = findViewById(R.id.tempText);
+        wIcon = findViewById(R.id.weatherIcon);
+        humText = findViewById(R.id.humidity_yext);
+        windText = findViewById(R.id.wind_text);
+        rainText = findViewById(R.id.rain_text);
 
         // user defines the criteria
         criteria = new Criteria();
@@ -124,14 +134,18 @@ public class MainActivity extends AppCompatActivity {
         tipsRecyclerView.setAdapter(tipsAdapter);
         tipsAdapter.notifyDataSetChanged();
 
-
         weatherService = ApiClient.getRetrofit().create(WeatherService.class);
         Call<WeatherDataModel> call = weatherService.getCurrentWeatherData(lat,lon,AppId);
         call.enqueue(new Callback<WeatherDataModel>() {
             @Override
             public void onResponse(Call<WeatherDataModel> call, Response<WeatherDataModel> response) {
                 WeatherDataModel weatherDataModel = response.body();
-                
+                assert weatherDataModel != null;
+                tempText.setText(weatherDataModel.getWeathers().get(0).getDescription());
+                //Toast.makeText(getApplicationContext(),weatherDataModel.getWeathers().get(0).getDescription(),Toast.LENGTH_LONG).show();
+
+
+
             }
 
             @Override
@@ -140,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void locationData(Location location) {
         if (location != null) {
@@ -204,28 +219,28 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onLocationChanged(Location location) {
-            Toast.makeText(MainActivity.this, "" + location.getLatitude() + location.getLongitude(),
-                    Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, "" + location.getLatitude() + location.getLongitude(),
+//                    Toast.LENGTH_SHORT).show();
 
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            Toast.makeText(MainActivity.this, provider + "'s status changed to " + status + "!",
-                    Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, provider + "'s status changed to " + status + "!",
+//                    Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onProviderEnabled(String provider) {
-            Toast.makeText(MainActivity.this, "Provider " + provider + " enabled!",
-                    Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, "Provider " + provider + " enabled!",
+//                    Toast.LENGTH_SHORT).show();
 
         }
 
         @Override
         public void onProviderDisabled(String provider) {
-            Toast.makeText(MainActivity.this, "Provider " + provider + " disabled!",
-                    Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, "Provider " + provider + " disabled!",
+//                    Toast.LENGTH_SHORT).show();
         }
     }
 

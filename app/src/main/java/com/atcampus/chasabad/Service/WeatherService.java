@@ -1,6 +1,6 @@
 package com.atcampus.chasabad.Service;
 
-import com.atcampus.chasabad.Model.WeatherDataModel;
+import com.atcampus.chasabad.Model.WeatherData.WeatherDataModel;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
