@@ -114,7 +114,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:padding="2dp"
-                    android:text="বৃষ্টিপাতের পরিমাণ"
+                    android:text="rain"
                     android:textColor="@color/controlBackground"
                     android:textStyle="bold" />
 
@@ -149,7 +149,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:padding="2dp"
-                    android:text="আর্দ্রতা "
+                    android:text="humidity"
                     android:textColor="@color/controlBackground"
                     android:textStyle="bold" />
 
@@ -184,7 +184,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:padding="2dp"
-                    android:text="বায়ু"
+                    android:text="wind"
                     android:textColor="@color/controlBackground"
                     android:textStyle="bold" />
 

@@ -1,5 +1,6 @@
 package com.atcampus.chasabad.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -7,9 +8,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,7 +22,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Looper;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,16 +37,18 @@ import com.atcampus.chasabad.Model.WeatherData.WeatherDataModel;
 import com.atcampus.chasabad.R;
 import com.atcampus.chasabad.Service.ApiClient;
 import com.atcampus.chasabad.Service.WeatherService;
-import com.bumptech.glide.Glide;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -54,31 +59,24 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class MainActivity extends AppCompatActivity {
     private RecyclerView menuRecyclerView, tipsRecyclerView;
     private TextView locationTextView;
-    private TextView tempText,humText,windText,rainText;
+    TextView tempText, humText, windText, rainText;
     private ImageView wIcon;
-
-    //user request
-    private int REQUEST_LOCATION = 99;
-    //location
-    private LocationManager locationManager;
-    private String provider;
-    private UserLocationListener mylistener;
-    private Criteria criteria;
 
     //Weather
     public static String BaseUrl = "http://api.openweathermap.org/";
     public static String AppId = "3e27923a09225792589eb4781bda21eb";
-    public static String lat;
-    public static String lon;
-
+    public String lat;
+    public String lon;
     private WeatherService weatherService;
+
+    //location
+    FusedLocationProviderClient fusedLocationProviderClient;
+    private Location location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         locationTextView = findViewById(R.id.locationText);
         tempText = findViewById(R.id.tempText);
@@ -87,34 +85,22 @@ public class MainActivity extends AppCompatActivity {
         windText = findViewById(R.id.wind_text);
         rainText = findViewById(R.id.rain_text);
 
-        // user defines the criteria
-        criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);   //default
-        criteria.setCostAllowed(false);
-        // get the best provider depending on the criteria
-        provider = locationManager.getBestProvider(criteria, false);
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]
-                    {ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-        }
-
-        final Location location = locationManager.getLastKnownLocation(provider);
-        mylistener = new UserLocationListener();
-        
-        locationData(location);
-        
         //App menu
-
         menuRecyclerView = findViewById(R.id.menu_recyclerView);
         menuRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         List<MenuModel> menuModelList = new ArrayList<>();
-        menuModelList.add(new MenuModel(R.drawable.leaf, "ফসল পরিচিতি"));
-        menuModelList.add(new MenuModel(R.drawable.agriculture, "চাষাবাদ পদ্ধতি ও সময়"));
-        menuModelList.add(new MenuModel(R.drawable.medicine, "সার ও কীটনাশক"));
-        menuModelList.add(new MenuModel(R.drawable.price, "আজকের বাজার"));
-        menuModelList.add(new MenuModel(R.drawable.news, "কৃষিতথ্য"));
-        menuModelList.add(new MenuModel(R.drawable.shop, "শপ"));
+//        menuModelList.add(new MenuModel(R.drawable.leaf, "ফসল পরিচিতি"));
+//        menuModelList.add(new MenuModel(R.drawable.agriculture, "চাষাবাদ পদ্ধতি ও সময়"));
+//        menuModelList.add(new MenuModel(R.drawable.medicine, "সার ও কীটনাশক"));
+//        menuModelList.add(new MenuModel(R.drawable.price, "আজকের বাজার"));
+//        menuModelList.add(new MenuModel(R.drawable.news, "কৃষিতথ্য"));
+//        menuModelList.add(new MenuModel(R.drawable.shop, "শপ"));
+        menuModelList.add(new MenuModel(R.drawable.leaf, "fd"));
+        menuModelList.add(new MenuModel(R.drawable.agriculture, "ff"));
+        menuModelList.add(new MenuModel(R.drawable.medicine, "ff"));
+        menuModelList.add(new MenuModel(R.drawable.price, "ff"));
+        menuModelList.add(new MenuModel(R.drawable.news, "ff"));
+        menuModelList.add(new MenuModel(R.drawable.shop, "ff"));
         MenuAdapter menuAdapter = new MenuAdapter(menuModelList);
         menuRecyclerView.setAdapter(menuAdapter);
         menuAdapter.notifyDataSetChanged();
@@ -125,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
         linearLayoutManager.setOrientation(RecyclerView.HORIZONTAL);
         tipsRecyclerView.setLayoutManager(linearLayoutManager);
 
-        //Todo
         List<TipsModel> tipsModelList = new ArrayList<>();
         tipsModelList.add(new TipsModel("Tips for red leafs!", "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."));
         tipsModelList.add(new TipsModel("Tips for red leafs!", "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."));
@@ -134,133 +119,113 @@ public class MainActivity extends AppCompatActivity {
         tipsRecyclerView.setAdapter(tipsAdapter);
         tipsAdapter.notifyDataSetChanged();
 
-        weatherService = ApiClient.getRetrofit().create(WeatherService.class);
-        Call<WeatherDataModel> call = weatherService.getCurrentWeatherData(lat,lon,AppId);
-        call.enqueue(new Callback<WeatherDataModel>() {
-            @Override
-            public void onResponse(Call<WeatherDataModel> call, Response<WeatherDataModel> response) {
-                WeatherDataModel weatherDataModel = response.body();
-                assert weatherDataModel != null;
-                tempText.setText(weatherDataModel.getWeathers().get(0).getDescription());
-                //Toast.makeText(getApplicationContext(),weatherDataModel.getWeathers().get(0).getDescription(),Toast.LENGTH_LONG).show();
 
-
-
-            }
-
-            @Override
-            public void onFailure(Call<WeatherDataModel> call, Throwable t) {
-
-            }
-        });
-    }
-
-
-    private void locationData(Location location) {
-        if (location != null) {
-
-            mylistener.onLocationChanged(location);
+        //location
+        //check condition
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+        if (ActivityCompat.checkSelfPermission(MainActivity.this
+                , ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(MainActivity.this
+                , Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            //if permission granted
+            getCurrentLocation();
         } else {
-            // leads to the settings because there is no last known location
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
-            //Using 12 seconds timer till it gets location
-            final AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-            alertDialog.setTitle("Obtaining Location ...");
-            alertDialog.setMessage("00:12");
-            alertDialog.show();
-
-            new CountDownTimer(12000, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    alertDialog.setMessage("00:" + (millisUntilFinished / 1000));
-                }
-
-                @Override
-                public void onFinish() {
-                    alertDialog.dismiss();
-                }
-            }.start();
+            ActivityCompat.requestPermissions(MainActivity.this
+                    , new String[]{ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
         }
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // this will beautomatically asked to be implemented
-        }
-        // location updates: at least 1 meter and 200millsecs change
-        locationManager.requestLocationUpdates(provider, 200, 1, mylistener);
-        if(location!=null) {
-            Double latitude = location.getLatitude();
-            Double longitude = location.getLongitude();
 
-            lat = String.valueOf(latitude);
-            lon = String.valueOf(longitude);
 
-            Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
-            List<Address> addresses = null;
-            try {
-                addresses = geocoder.getFromLocation(latitude, longitude, 1);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            String cityName = addresses.get(0).getLocality();
-            String stateName = addresses.get(0).getAdminArea();
-            String countryName = addresses.get(0).getCountryName();
-            String postalcode = addresses.get(0).getPostalCode();
-            String area = addresses.get(0).getAdminArea();
-            String latlon = lat +","+ lon;
-            //set text of xml file
-            locationTextView.setText(latlon);
-        }
-        else {
-            Toast.makeText(MainActivity.this, "Please open your location", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 100 && grantResults.length > 0 && (grantResults[0] + grantResults[1]
+                == PackageManager.PERMISSION_GRANTED)) {
+            getCurrentLocation();
+        } else {
+            Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_LONG).show();
         }
     }
 
-    private class UserLocationListener implements LocationListener {
+    @SuppressLint("MissingPermission")
+    private void getCurrentLocation() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        assert locationManager != null;
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                @Override
+                public void onComplete(@NonNull Task<Location> task) {
+                    location = task.getResult();
+                    if (location != null) {
+                        //set
+                        lat = String.valueOf(location.getLatitude());
+                        lon = String.valueOf(location.getLongitude());
 
-        @Override
-        public void onLocationChanged(Location location) {
-//            Toast.makeText(MainActivity.this, "" + location.getLatitude() + location.getLongitude(),
-//                    Toast.LENGTH_SHORT).show();
+                        Geocoder geocoder;
+                        List<Address> addresses;
+                        geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
 
-        }
+                        try {
+                            addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                            String city = addresses.get(0).getLocality();
+                            String state = addresses.get(0).getAdminArea();
+                            String country = addresses.get(0).getCountryName();
+                            String postalCode = addresses.get(0).getPostalCode();
+                            String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
+                            locationTextView.setText(address);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-//            Toast.makeText(MainActivity.this, provider + "'s status changed to " + status + "!",
-//                    Toast.LENGTH_SHORT).show();
-        }
+                        //get weather data using latitude and longitude
+                        weatherService = ApiClient.getRetrofit().create(WeatherService.class);
+                        Call<WeatherDataModel> call = weatherService.getCurrentWeatherData(lat, lon, AppId);
+                        call.enqueue(new Callback<WeatherDataModel>() {
+                            @Override
+                            public void onResponse(Call<WeatherDataModel> call, Response<WeatherDataModel> response) {
+                                final WeatherDataModel weatherDataModel = response.body();
+                                assert weatherDataModel != null;
+                               runOnUiThread(new Runnable() {
+                                   @Override
+                                   public void run() {
+                                       humText.setText(String.valueOf(weatherDataModel.getMain().getHumidity()));
+                                   }
+                               });
+                                //Toast.makeText(getApplicationContext(),weatherDataModel.getWeathers().get(0).getDescription(),Toast.LENGTH_LONG).show();
+                            }
+                            @Override
+                            public void onFailure(Call<WeatherDataModel> call, Throwable t) {
 
-        @Override
-        public void onProviderEnabled(String provider) {
-//            Toast.makeText(MainActivity.this, "Provider " + provider + " enabled!",
-//                    Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
-        }
+                    } else {
+                        LocationRequest locationRequest = new LocationRequest()
+                                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                                .setInterval(10000)
+                                .setFastestInterval(1000)
+                                .setNumUpdates(1);
 
-        @Override
-        public void onProviderDisabled(String provider) {
-//            Toast.makeText(MainActivity.this, "Provider " + provider + " disabled!",
-//                    Toast.LENGTH_SHORT).show();
+                        LocationCallback locationCallback = new LocationCallback() {
+                            @Override
+                            public void onLocationResult(LocationResult locationResult) {
+                                super.onLocationResult(locationResult);
+                                Location location1 = locationResult.getLastLocation();
+                                //set
+//                                locationTextView.setText(location1.getLatitude() + "," + String.valueOf(location1.getLongitude()));
+                            }
+                        };
+                        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+                    }
+
+                }
+            });
+        } else {
+            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
     }
 
-
-
-//
-//    @Override
-//    public void onLocationChanged(Location location) {
-//        try {
-//            Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-//            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-//
-//            locationTextView.setText(addresses.get(0).getLocality() + addresses.get(0).getLocality());
-//            tvState.setText(addresses.get(0).getAdminArea());
-//            tvCountry.setText(addresses.get(0).getCountryName());
-//            tvPin.setText(addresses.get(0).getPostalCode());
-//            locationTextView.setText(addresses.get(0).getAddressLine(0));
-//
-//        } catch (Exception e) {
-//        }
-//    }
 
 }
