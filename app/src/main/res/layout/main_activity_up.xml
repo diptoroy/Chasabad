@@ -20,8 +20,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:orientation="horizontal"
         android:padding="10dp"
+        app:layout_constraintEnd_toStartOf="@+id/imageView3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -114,7 +116,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:padding="2dp"
-                    android:text="rain"
+                    android:text="চাপ"
                     android:textColor="@color/controlBackground"
                     android:textStyle="bold" />
 
@@ -126,7 +128,7 @@
                     android:backgroundTint="@color/colorAccent" />
 
                 <TextView
-                    android:id="@+id/rain_text"
+                    android:id="@+id/pressaure_text"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
@@ -149,7 +151,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:padding="2dp"
-                    android:text="humidity"
+                    android:text="আর্দ্রতা "
                     android:textColor="@color/controlBackground"
                     android:textStyle="bold" />
 
@@ -184,7 +186,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:padding="2dp"
-                    android:text="wind"
+                    android:text="বায়ুবেগ"
                     android:textColor="@color/controlBackground"
                     android:textStyle="bold" />
 

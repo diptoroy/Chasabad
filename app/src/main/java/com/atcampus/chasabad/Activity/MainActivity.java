@@ -1,7 +1,6 @@
 package com.atcampus.chasabad.Activity;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -10,21 +9,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Looper;
 import android.provider.Settings;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,10 +27,11 @@ import com.atcampus.chasabad.Adapter.MenuAdapter;
 import com.atcampus.chasabad.Adapter.TipsAdapter;
 import com.atcampus.chasabad.Model.MenuModel;
 import com.atcampus.chasabad.Model.TipsModel;
-import com.atcampus.chasabad.Model.WeatherData.WeatherDataModel;
+import com.atcampus.chasabad.Model.WeatherModel.WeatherResponse;
 import com.atcampus.chasabad.R;
 import com.atcampus.chasabad.Service.ApiClient;
 import com.atcampus.chasabad.Service.WeatherService;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -59,7 +54,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class MainActivity extends AppCompatActivity {
     private RecyclerView menuRecyclerView, tipsRecyclerView;
     private TextView locationTextView;
-    TextView tempText, humText, windText, rainText;
+    TextView tempText, humText, windText, pressureText;
     private ImageView wIcon;
 
     //Weather
@@ -83,24 +78,19 @@ public class MainActivity extends AppCompatActivity {
         wIcon = findViewById(R.id.weatherIcon);
         humText = findViewById(R.id.humidity_yext);
         windText = findViewById(R.id.wind_text);
-        rainText = findViewById(R.id.rain_text);
+        pressureText = findViewById(R.id.pressaure_text);
 
         //App menu
         menuRecyclerView = findViewById(R.id.menu_recyclerView);
         menuRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         List<MenuModel> menuModelList = new ArrayList<>();
-//        menuModelList.add(new MenuModel(R.drawable.leaf, "ফসল পরিচিতি"));
-//        menuModelList.add(new MenuModel(R.drawable.agriculture, "চাষাবাদ পদ্ধতি ও সময়"));
-//        menuModelList.add(new MenuModel(R.drawable.medicine, "সার ও কীটনাশক"));
-//        menuModelList.add(new MenuModel(R.drawable.price, "আজকের বাজার"));
-//        menuModelList.add(new MenuModel(R.drawable.news, "কৃষিতথ্য"));
-//        menuModelList.add(new MenuModel(R.drawable.shop, "শপ"));
-        menuModelList.add(new MenuModel(R.drawable.leaf, "fd"));
-        menuModelList.add(new MenuModel(R.drawable.agriculture, "ff"));
-        menuModelList.add(new MenuModel(R.drawable.medicine, "ff"));
-        menuModelList.add(new MenuModel(R.drawable.price, "ff"));
-        menuModelList.add(new MenuModel(R.drawable.news, "ff"));
-        menuModelList.add(new MenuModel(R.drawable.shop, "ff"));
+        menuModelList.add(new MenuModel(R.drawable.leaf, "ফসল পরিচিতি"));
+        menuModelList.add(new MenuModel(R.drawable.agriculture, "চাষাবাদ পদ্ধতি ও সময়"));
+        menuModelList.add(new MenuModel(R.drawable.medicine, "সার ও কীটনাশক"));
+        menuModelList.add(new MenuModel(R.drawable.price, "আজকের বাজার"));
+        menuModelList.add(new MenuModel(R.drawable.news, "কৃষিতথ্য"));
+        menuModelList.add(new MenuModel(R.drawable.shop, "শপ"));
+
         MenuAdapter menuAdapter = new MenuAdapter(menuModelList);
         menuRecyclerView.setAdapter(menuAdapter);
         menuAdapter.notifyDataSetChanged();
@@ -173,29 +163,87 @@ public class MainActivity extends AppCompatActivity {
                             String country = addresses.get(0).getCountryName();
                             String postalCode = addresses.get(0).getPostalCode();
                             String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
-                            locationTextView.setText(address);
+                            if (postalCode == null){
+                                locationTextView.setText(address);
+                            }else {
+                                locationTextView.setText(postalCode);
+                            }
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
                         //get weather data using latitude and longitude
                         weatherService = ApiClient.getRetrofit().create(WeatherService.class);
-                        Call<WeatherDataModel> call = weatherService.getCurrentWeatherData(lat, lon, AppId);
-                        call.enqueue(new Callback<WeatherDataModel>() {
+                        Call<WeatherResponse> call = weatherService.getCurrentWeatherData(lat, lon, AppId);
+                        call.enqueue(new Callback<WeatherResponse>() {
                             @Override
-                            public void onResponse(Call<WeatherDataModel> call, Response<WeatherDataModel> response) {
-                                final WeatherDataModel weatherDataModel = response.body();
-                                assert weatherDataModel != null;
-                               runOnUiThread(new Runnable() {
-                                   @Override
-                                   public void run() {
-                                       humText.setText(String.valueOf(weatherDataModel.getMain().getHumidity()));
-                                   }
-                               });
-                                //Toast.makeText(getApplicationContext(),weatherDataModel.getWeathers().get(0).getDescription(),Toast.LENGTH_LONG).show();
+                            public void onResponse(Call<WeatherResponse> call, Response<WeatherResponse> response) {
+                                if (response.code() == 200){
+                                    WeatherResponse weatherResponse = response.body();
+                                    assert weatherResponse != null;
+                                    Toast.makeText(getApplicationContext(),"response ok",Toast.LENGTH_LONG).show();
+                                    String temperature = String.valueOf(String.format("%.2f",weatherResponse.getMain().getTemp() - 273.15));
+                                    String humidity = String.valueOf(weatherResponse.getMain().getHumidity());
+                                    String wind = String.valueOf(weatherResponse.getWind().getSpeed());
+                                    String pressure = String.valueOf(weatherResponse.getMain().getPressure());
+                                    tempText.setText(temperature +"° C");
+                                    humText.setText(humidity+"%");
+                                    windText.setText(wind+" km/h");
+                                    pressureText.setText(pressure+" hPa");
+                                    if (weatherResponse.getWeather().get(0).getIcon().equals("04n")){
+                                        Glide.with(MainActivity.this).load(R.drawable.night).into(wIcon);
+                                    }
+
+                                    switch (weatherResponse.getWeather().get(0).getIcon()){
+                                        case "01d":
+                                            Glide.with(MainActivity.this).load(R.drawable.sun).into(wIcon);
+                                            break;
+                                        case "02d":
+                                            Glide.with(MainActivity.this).load(R.drawable.shop).into(wIcon);
+                                            break;
+                                        case "03d":
+                                            Glide.with(MainActivity.this).load(R.drawable.editfield).into(wIcon);
+                                            break;
+                                        case "04d":
+                                            Glide.with(MainActivity.this).load(R.drawable.leaf).into(wIcon);
+                                            break;
+                                        case "04n":
+                                            Glide.with(MainActivity.this).load(R.drawable.night).into(wIcon);
+                                            break;
+//                                        case "10d":
+//
+//                                            break;
+//                                        case "11d":
+//
+//                                            break;
+//                                        case "13d":
+//                                            weather_icon.setText(R.string.wi_day_snow);
+//                                            break;
+//                                        case "01n":
+//                                            weather_icon.setText(R.string.wi_night_clear);
+//                                            break;
+//                                        case "02n":
+//                                            weather_icon.setText(R.string.wi_night_cloudy);
+//                                            break;
+//                                        case "03n":
+//                                            weather_icon.setText(R.string.wi_night_cloudy_gusts);
+//                                            break;
+//                                        case "10n":
+//                                            weather_icon.setText(R.string.wi_night_cloudy_gusts);
+//                                            break;
+//                                        case "11n":
+//                                            weather_icon.setText(R.string.wi_night_rain);
+//                                            break;
+//                                        case "13n":
+//                                            weather_icon.setText(R.string.wi_night_snow);
+//                                            break;
+                                    }
+
+                                }
                             }
                             @Override
-                            public void onFailure(Call<WeatherDataModel> call, Throwable t) {
+                            public void onFailure(Call<WeatherResponse> call, Throwable t) {
 
                             }
                         });
@@ -226,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
     }
+
 
 
 }

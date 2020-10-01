@@ -1,16 +1,38 @@
-package com.atcampus.chasabad.Model.WeatherData;
+package com.atcampus.chasabad.Model.WeatherModel;
 
 import com.google.gson.annotations.SerializedName;
 
 public class Weather {
+    @SerializedName("id")
+    public int id;
+    @SerializedName("main")
+    public String main;
     @SerializedName("description")
     public String description;
     @SerializedName("icon")
     public String icon;
 
-    public Weather(String description, String icon) {
+    public Weather(int id, String main, String description, String icon) {
+        this.id = id;
+        this.main = main;
         this.description = description;
         this.icon = icon;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getMain() {
+        return main;
+    }
+
+    public void setMain(String main) {
+        this.main = main;
     }
 
     public String getDescription() {
