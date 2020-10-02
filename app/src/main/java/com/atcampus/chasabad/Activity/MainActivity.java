@@ -41,9 +41,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -54,7 +58,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class MainActivity extends AppCompatActivity {
     private RecyclerView menuRecyclerView, tipsRecyclerView;
     private TextView locationTextView;
-    TextView tempText, humText, windText, pressureText;
+    TextView tempText, humText, windText, pressureText,settText,riseText;
     private ImageView wIcon;
 
     //Weather
@@ -79,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
         humText = findViewById(R.id.humidity_yext);
         windText = findViewById(R.id.wind_text);
         pressureText = findViewById(R.id.pressaure_text);
+        settText = findViewById(R.id.setText);
+        riseText = findViewById(R.id.riseText);
 
         //App menu
         menuRecyclerView = findViewById(R.id.menu_recyclerView);
@@ -163,9 +169,9 @@ public class MainActivity extends AppCompatActivity {
                             String country = addresses.get(0).getCountryName();
                             String postalCode = addresses.get(0).getPostalCode();
                             String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
-                            if (postalCode == null){
+                            if (postalCode == null) {
                                 locationTextView.setText(address);
-                            }else {
+                            } else {
                                 locationTextView.setText(postalCode);
                             }
 
@@ -179,23 +185,39 @@ public class MainActivity extends AppCompatActivity {
                         call.enqueue(new Callback<WeatherResponse>() {
                             @Override
                             public void onResponse(Call<WeatherResponse> call, Response<WeatherResponse> response) {
-                                if (response.code() == 200){
+                                if (response.code() == 200) {
                                     WeatherResponse weatherResponse = response.body();
                                     assert weatherResponse != null;
-                                    Toast.makeText(getApplicationContext(),"response ok",Toast.LENGTH_LONG).show();
-                                    String temperature = String.valueOf(String.format("%.2f",weatherResponse.getMain().getTemp() - 273.15));
+                                    Toast.makeText(getApplicationContext(), "response ok", Toast.LENGTH_LONG).show();
+
+                                    String temperature = String.valueOf(String.format("%.2f", weatherResponse.getMain().getTemp() - 273.15));
                                     String humidity = String.valueOf(weatherResponse.getMain().getHumidity());
                                     String wind = String.valueOf(weatherResponse.getWind().getSpeed());
                                     String pressure = String.valueOf(weatherResponse.getMain().getPressure());
-                                    tempText.setText(temperature +"° C");
-                                    humText.setText(humidity+"%");
-                                    windText.setText(wind+" km/h");
-                                    pressureText.setText(pressure+" hPa");
-                                    if (weatherResponse.getWeather().get(0).getIcon().equals("04n")){
+
+                                    long riseunixSeconds = weatherResponse.getSys().getSunrise();
+                                    long setunixSeconds = weatherResponse.getSys().getSunset();
+                                    // convert seconds to milliseconds
+                                    Date rdate = new java.util.Date(riseunixSeconds*1000L);
+                                    Date sdate = new java.util.Date(setunixSeconds*1000L);
+                                    // the format of your date
+                                    SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm a");
+                                    // give a timezone reference for formatting (see comment at the bottom)
+                                    sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+6"));
+                                    String sunriseDate = sdf.format(rdate);
+                                    String sunsetDate = sdf.format(sdate);
+                                    riseText.setText(sunriseDate);
+                                    settText.setText(sunsetDate);
+
+                                    tempText.setText(temperature + "° C");
+                                    humText.setText(humidity + "%");
+                                    windText.setText(wind + " km/h");
+                                    pressureText.setText(pressure + " hPa");
+                                    if (weatherResponse.getWeather().get(0).getIcon().equals("04n")) {
                                         Glide.with(MainActivity.this).load(R.drawable.night).into(wIcon);
                                     }
 
-                                    switch (weatherResponse.getWeather().get(0).getIcon()){
+                                    switch (weatherResponse.getWeather().get(0).getIcon()) {
                                         case "01d":
                                             Glide.with(MainActivity.this).load(R.drawable.sun).into(wIcon);
                                             break;
@@ -242,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 }
                             }
+
                             @Override
                             public void onFailure(Call<WeatherResponse> call, Throwable t) {
 
@@ -274,7 +297,6 @@ public class MainActivity extends AppCompatActivity {
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
     }
-
 
 
 }
