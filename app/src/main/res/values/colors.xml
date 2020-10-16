@@ -10,4 +10,5 @@
     <color name="lighterBlue">#ffcdd8ec</color>
     <color name="controlBackground">#ffffffff</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorBackground">#FAFBFD</color>
 </resources>

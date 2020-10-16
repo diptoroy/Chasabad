@@ -17,6 +17,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
+        <activity android:name=".Activity.CropsDetailsActivity"></activity>
         <activity
             android:name=".Activity.RegistrationActivity"
             android:theme="@style/NoActionBarTheme">
@@ -31,8 +32,7 @@
             android:theme="@style/NoActionBarTheme" />
         <activity
             android:name=".Activity.SplashActivity"
-            android:theme="@style/NoActionBarTheme">
-        </activity>
+            android:theme="@style/NoActionBarTheme"></activity>
     </application>
 
 </manifest>

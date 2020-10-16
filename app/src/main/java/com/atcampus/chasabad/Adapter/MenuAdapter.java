@@ -1,5 +1,6 @@
 package com.atcampus.chasabad.Adapter;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.atcampus.chasabad.Activity.CropsDetailsActivity;
 import com.atcampus.chasabad.Model.MenuModel;
 import com.atcampus.chasabad.R;
 
@@ -60,6 +62,15 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
         public void setData(int mImage,String mName){
             img.setImageResource(mImage);
             title.setText(mName);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent cropDetails = new Intent(itemView.getContext(), CropsDetailsActivity.class);
+//                    productDetails.putExtra("PRODUCT_ID",productId);
+                    itemView.getContext().startActivity(cropDetails);
+                }
+            });
         }
     }
 }
